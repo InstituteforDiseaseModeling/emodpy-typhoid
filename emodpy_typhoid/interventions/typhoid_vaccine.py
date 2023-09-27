@@ -33,9 +33,8 @@ def new_triggered_intervention(
     Distribute TyphoidVaccine when something happens as determined by a signal published from the
     model or another campaign event.
     """
-    iv = new_intervention( camp, efficacy, mode )
+    iv = new_intervention( camp, efficacy=efficacy, mode=mode, constant_period=constant_period, decay_constant=decay_constant )
 
-    #event = common.ScheduledCampaignEvent( camp, Start_Day=start_day, Demographic_Coverage=coverage, Intervention_List=[ act_intervention, bcast_intervention ], Node_Ids=nodeIDs, Property_Restrictions=property_restrictions_list )
     event = common.TriggeredCampaignEvent( camp, Start_Day=start_day, Triggers=triggers, Demographic_Coverage=coverage, Intervention_List=[ iv ], Node_Ids=node_ids, Property_Restrictions=property_restrictions_list, Event_Name="Triggered Typhoid Vax" )
 
     return event
@@ -56,7 +55,7 @@ def new_scheduled_intervention(
     Distribute TyphoidVaccine when something happens as determined by a signal published from the
     model or another campaign event.
     """
-    iv = new_intervention( camp, efficacy, mode )
+    iv = new_intervention( camp, efficacy=efficacy, mode=mode, constant_period=constant_period, decay_constant=decay_constant )
 
     #event = common.ScheduledCampaignEvent( camp, Start_Day=start_day, Demographic_Coverage=coverage, Intervention_List=[ act_intervention, bcast_intervention ], Node_Ids=nodeIDs, Property_Restrictions=property_restrictions_list )
     event = common.ScheduledCampaignEvent( camp, Start_Day=start_day, Demographic_Coverage=coverage, Intervention_List=[ iv ], Node_Ids=node_ids, Property_Restrictions=property_restrictions_list )
