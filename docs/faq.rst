@@ -5,7 +5,7 @@ Frequently asked questions
 As you get started with |EMODPY_typhoid|, you may have questions. The most common
 questions are answered below. The most common questions are answered below. 
 For questions related to functionality in related packages, see the
-following documentation:
+following documentation: XXX TEST XXXX
 
 * :doc:`emod-typhoid:faq` for |EMOD_s|
 * :doc:`idmtools:faq` for |IT_s|
