@@ -70,7 +70,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
-docs/emodpy-typhoid*.rst
+docs/emodpy_typhoid*.rst
 docs/modules.rst
 
 # PyBuilder
