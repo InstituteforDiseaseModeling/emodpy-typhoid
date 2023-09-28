@@ -34,15 +34,6 @@ def run():
     # Show how to dynamically set priority and node_group
     platform = Platform("SLURM", node_group="idm_48cores", priority="Highest") 
 
-    #task = EMODTask.from_files(config_path="config_comps_ref.json", eradication_path=manifest.eradication_path, campaign_path="campaign_routine_exp.json", demographics_paths=["TestDemographics_Mystery_Fert.json"], ep4_path=None)
-    #task = EMODTask.from_files(config_path="config_comps_ref.json", eradication_path=manifest.eradication_path, campaign_path="campaign_routine_exp.json", demographics_paths=["demographics.json"], ep4_path=None)
-    #task = EMODTask.from_files(config_path="config_py.json", eradication_path=manifest.eradication_path, campaign_path="campaign_routine_exp.json", demographics_paths=["demographics.json"], ep4_path=None)
-    #task = EMODTask.from_files(config_path="config.json", eradication_path=manifest.eradication_path, campaign_path="campaign_routine_exp.json", demographics_paths=["demographics.json"], ep4_path=None)
-    #task = EMODTask.from_files(config_path="config_literal_5mods.json", eradication_path=manifest.eradication_path, campaign_path="campaign_baseline.json", demographics_paths=["TestDemographics_Blantyre.json"], ep4_path=None)
-    #task = EMODTask.from_files(config_path="config_june242019.json", eradication_path=manifest.eradication_path, campaign_path="campaign_june242019.json", demographics_paths=["TestDemographics_Mystery_Fert.json"], ep4_path=None)
-    #task = EMODTask.from_files(config_path="config_june242019_plus_to_params.json", eradication_path=manifest.eradication_path, campaign_path="campaign_june242019.json", demographics_paths=["TestDemographics_Mystery_Fert.json"], ep4_path=None)
-    #task = EMODTask.from_files(config_path="config_june242019_seasonal.json", eradication_path=manifest.eradication_path, campaign_path="campaign_june242019.json", demographics_paths=["TestDemographics_Mystery_Fert.json"], ep4_path=None)
-    #task = EMODTask.from_files(config_path="config_june242019_seasonal_to.json", eradication_path=manifest.eradication_path, campaign_path="campaign_june242019.json", demographics_paths=["TestDemographics_Mystery_Fert.json"], ep4_path=None)
     task = EMODTask.from_files(config_path="config_feb162019.json", eradication_path=manifest.eradication_path, campaign_path="campaign_feb162019.json", demographics_paths=["TestDemographics_Blantyre.json"], ep4_path=None)
 
 
