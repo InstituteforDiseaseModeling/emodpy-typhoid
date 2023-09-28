@@ -61,8 +61,7 @@ def from_params(tot_pop=1e6, num_nodes=100, frac_rural=0.3, id_ref="from_params"
         id_ref: Method describing how the latitude and longitude values are created
             for each of the nodes in a simulation. "Gridded world" values use a grid 
             overlaid across the globe at some arcsec resolution. You may also generate 
-            the grid using another tool or coordinate system. For more information,
-            see :ref:`emod-typhoid:demo-metadata`.
+            the grid using another tool or coordinate system.
 
     Returns:
         A :py:class:`~emodpy_typhoid.demographics.typhoid` instance.
