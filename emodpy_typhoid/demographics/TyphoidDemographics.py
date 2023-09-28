@@ -9,6 +9,7 @@ class TyphoidDemographics(Demographics):
     """
     def __init__(self, nodes, idref="Gridded world grump2.5arcmin", base_file=None):
         super().__init__( nodes, idref, base_file )
+        # The following is for back-compat with older versions of the model which looked for these keys unconditionally.
         self.raw["Defaults"]["IndividualAttributes"]["PrevalenceDistributionFlag"] = 0
         self.raw["Defaults"]["IndividualAttributes"]["PrevalenceDistribution1"] = 0
         self.raw["Defaults"]["IndividualAttributes"]["PrevalenceDistribution2"] = 0
