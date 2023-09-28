@@ -44,6 +44,7 @@ def new_triggered_intervention(
     ):
     """
     Create a new triggered TyphoidVaccine intervention based on specified parameters.
+
     Args:
          camp (Camp): The camp to which the intervention is applied.
          efficacy (float, optional): The efficacy of the Typhoid vaccine. Default is 0.82.
@@ -80,6 +81,7 @@ def new_scheduled_intervention(
     ):
     """
     Create a new scheduled TyphoidVaccine intervention based on specified parameters.
+
     Args:
          camp (Camp): The camp to which the intervention is applied.
          efficacy (float, optional): The efficacy of the Typhoid vaccine. Default is 0.82.
