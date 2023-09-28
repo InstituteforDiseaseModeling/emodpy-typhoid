@@ -81,7 +81,7 @@ def from_csv( pop_filename_in, site="No_Site", min_node_pop = 0 ):
         site: A string to identify the country, village, or trial site.
 
     Returns:
-        A :py:class:`~emodpy_malaria.demographics.MalariaDemographics` instance.
+        A :py:class:`~emodpy_typhoid.demographics.MalariaDemographics` instance.
     """
     typhoid_demog = Demog.from_csv( pop_filename_in )
     nodes = []
