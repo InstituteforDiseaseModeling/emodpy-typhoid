@@ -16,7 +16,7 @@
 
 .. |IDM_l| replace:: Institute for Disease Modeling (IDM)
 .. |EMODPY_s| replace:: emodpy
-.. |EMODPY_typhoid| replace:: typhoid
+.. |EMODPY_typhoid| replace:: emodpy-typhoid
 .. |emod_api| replace:: emod-api
 .. |IDM_s| replace:: IDM
 .. |EMOD_l| replace:: Epidemiological MODeling software (EMOD)
