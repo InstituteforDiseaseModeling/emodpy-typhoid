@@ -5,9 +5,7 @@ import json
 
 def new_intervention( camp, efficacy=0.82, mode="Shedding", constant_period=0, decay_constant=6935.0 ):
     """
-     Create a new TyphoidVaccine intervention with specified parameters. If you use this function directly,
-	you'll need to distribute the intervention with a function like ScheduledCampaignEvent or TriggeredCampaignEvent
-	from emod_api.interventions.common.
+     Create a new TyphoidVaccine intervention with specified parameters. If you use this function directly, you'll need to distribute the intervention with a function like ScheduledCampaignEvent or TriggeredCampaignEvent from emod_api.interventions.common.
 
      Args:
          camp (Camp): The camp to which the intervention is applied.
