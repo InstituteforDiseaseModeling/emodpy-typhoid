@@ -1,3 +1,2 @@
-emod-typhoid==0.0.2.dev0
-emodpy==1.22.0.dev2
-
+emodpy~=1.16
+emod-typhoid
