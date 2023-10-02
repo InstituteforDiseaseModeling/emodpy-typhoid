@@ -105,7 +105,7 @@ def new_scheduled_intervention(
 
 def new_intervention_as_file( camp, start_day, filename=None ):
     import emod_api.campaign as camp
-    camp.add( new_triggered_intervention( camp, start_day ), first=True )
+    camp.add( new_triggered_intervention( camp, start_day=start_day ), first=True )
     if filename is None:
         filename = "TyphoidVaccine.json"
     camp.save( filename )
