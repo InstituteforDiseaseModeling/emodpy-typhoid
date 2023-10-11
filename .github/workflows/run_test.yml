@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  run-all-test-ubuntu-prod:
+  run-all-test-dev-install:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
