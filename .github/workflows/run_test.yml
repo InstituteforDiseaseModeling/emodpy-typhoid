@@ -1,0 +1,61 @@
+name: run all tests
+on:
+  workflow_dispatch:
+
+jobs:
+  run-all-test-dev-install:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        python-version: [ 3.9 ]
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Config github user
+        run: |
+          git config --global user.email "idm_bamboo_user@idmod.org"
+          git config --global user.name "BambooUser-IDM"
+      - uses: actions/setup-python@master
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - name: Install requirements.txt
+        run: |
+          pip install -r requirements_2018.txt --index-url=https://packages.idmod.org/api/pypi/pypi-production/simple
+      - name: Install from source
+        run: |
+          pip install -e .
+      - name: install test dependencies
+        run: |
+          pip3 install unittest-xml-reporting pytest
+#      - name: Install idm-test package
+#        run: |
+#          pip install idm-test>=0.0.13 --extra-index-url https://packages.idmod.org/api/pypi/pypi-production/simple
+      - name: Login to comps2
+        run: |
+          python ./.dev_scripts/create_auth_token_args.py --username "${{ secrets.COMPS_USER }}" --password "${{ secrets.COMPS_PASSWORD }}"
+      - name: run unittests
+        run: |
+          cd tests/unittests
+          py.test -sv --junitxml=reports/test_results.xml
+      - name: Upload unittest result to artifactory
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: unittest_results
+          path: |
+            **/test_results.xml
+      - name: run workflow tests
+        run: |
+          cd tests/workflow_tests
+          py.test -sv --junitxml=reports/test_results.xml
+      - name: Upload workflow tests results to artifactory
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: unittest_results
+          path: |
+            **/test_results.xml
