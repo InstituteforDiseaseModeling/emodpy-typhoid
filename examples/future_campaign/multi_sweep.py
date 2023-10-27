@@ -19,7 +19,7 @@ import emod_api.interventions.common as comm
 
 import manifest
 
-from emodpy_typhoid.utility.sweeping import ItvFn, set_param, sweep_functions
+from emodpy_typhoid.utility.sweeping import ItvFn, CfgFn, set_param, sweep_functions
 
 
 BASE_YEAR = 2005
@@ -117,7 +117,8 @@ def build_camp():
                                                         )
         camp.add(one_time_campaign)
 
-    add_historical_vax( camp )
+    #add_historical_vax( camp )
+    add_historical_vax( camp, ria_coverage=1.0, camp_coverage=1.0, efficacy=1.0, expiration=36500 )
     return camp
 
 
@@ -179,8 +180,12 @@ def add_vax_intervention(campaign, values, min_age=0.75, max_age=15, binary_immu
         'decay': values['decay_constant']
     }
 
+def sweep_config_func(config, values):
+    config.parameters.Typhoid_Acute_Infectiousness = values['typhoid_acute_infectiousness']
+    config.parameters.Typhoid_Exposure_Lambda = values['typhoid_exposure_lambda']
+    return {'Typhoid_Acute_Infectiousness': values['typhoid_acute_infectiousness'], 'Typhoid_Exposure_Lambda': values['typhoid_exposure_lambda']}
 
-def get_sweep_builders(sweep_list, add_vax_fn=add_vax_intervention):
+def get_sweep_builders(camp_sweep_list, config_sweep_list, add_vax_fn=add_vax_intervention):
     """
     Build simulation builders.
     Args:
@@ -193,9 +198,11 @@ def get_sweep_builders(sweep_list, add_vax_fn=add_vax_intervention):
     funcs_list = [[
         ItvFn(add_vax_fn, ce),
         partial(set_param, param='Run_Number', value=x),
+        CfgFn(sweep_config_func, y)
     ]
-        for ce in sweep_list  # for sweep on sweep_list
-        for x in range(1)  # for sweep Run_Number
+        for ce in camp_sweep_list  # for sweep on sweep_list
+        for x in range(2)  # for sweep Run_Number
+        for y in config_sweep_list
     ]
 
     builder.add_sweep_definition(sweep_functions, funcs_list)
@@ -285,6 +292,15 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
         df = pd.load_csv( manifest.sweep_config )
         raise NotImplemented( "get_sweep_list_from_csv" )
 
+    def get_config_sweep_list():
+        tac = [ 13435, 15320 ]
+        tel = [ 5.0, 7.0 ]
+        combinations = list(itertools.product(tac, tel))
+        sweep_list = []
+        for c in combinations:
+            sweep_list.append({'typhoid_acute_infectiousness': c[0], 'typhoid_exposure_lambda': c[1]})
+        return sweep_list
+
     sweep_selections = {
             "All": get_sweep_list_full,
             "Efficacy": get_sweep_list_efficacy,
@@ -308,7 +324,7 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
     else:
         avi_decay = partial( avi_age_coverage, binary_immunity=False )
 
-    builders = get_sweep_builders(sweep_list, add_vax_fn=avi_decay)
+    builders = get_sweep_builders(sweep_list, get_config_sweep_list(), add_vax_fn=avi_decay)
 
     # create TemplatedSimulations from task and builders
     ts = TemplatedSimulations(base_task=task, builders=builders)
