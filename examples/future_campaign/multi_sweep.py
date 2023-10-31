@@ -234,7 +234,7 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
     def get_sweep_list_full():
         start_day_offset = [1]
         vax_effs = np.linspace(0.1, 1.0, 10)
-        decay = [1, 365, 3650, 365000]
+        decay = [1, 365, 3650, 36500]
         cov = np.linspace(start=0.0, stop=1.0, num=5)
         return get_sweep_list_from_values(start_day_offset, vax_effs, cov, decay)
 
