@@ -85,7 +85,7 @@ def build_camp():
                                           node_ids=[1],
                                           repetitions= 5,
                                           timesteps_between_repetitions=30,
-                                          #ind_property_restrictions=["Region:A"]
+                                          ind_property_restrictions=["Region:Rural"] # just to show we can and stuff
                                           )
     camp.add(ob_event)
     
@@ -223,8 +223,8 @@ def get_sweep_builders(camp_sweep_list, config_sweep_list, add_vax_fn=add_vax_in
 
 
 def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
-    #platform = Platform("SLURM", node_group="idm_48cores", priority="Highest") 
-    platform = Platform("SLURMStage", node_group="idm_48cores", priority="Highest") 
+    platform = Platform("SLURM", node_group="idm_48cores", priority="Highest") 
+    #platform = Platform("SLURMStage", node_group="idm_48cores", priority="Highest") 
 
     task = EMODTask.from_default2(config_path="config.json", eradication_path=manifest.eradication_path,
                                   campaign_builder=build_camp, demog_builder=build_demog, schema_path=manifest.schema_file,
