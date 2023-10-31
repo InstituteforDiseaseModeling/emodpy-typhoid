@@ -22,8 +22,8 @@ import manifest
 from emodpy_typhoid.utility.sweeping import ItvFn, CfgFn, set_param, sweep_functions
 
 
-BASE_YEAR = 2005
-SIMULATION_DURATION_IN_YEARS = 25
+BASE_YEAR = 1990
+SIMULATION_DURATION_IN_YEARS = 40
 CAMP_START_YEAR = 2015
 FWD_CAMP_START_YEAR = 2024.25
 
@@ -40,14 +40,13 @@ def set_param_fn(config):
     config.parameters.Inset_Chart_Reporting_Start_Year = BASE_YEAR
     config.parameters.Inset_Chart_Reporting_Stop_Year = 2030
     config.parameters.Enable_Demographics_Reporting = 0
-    #config.parameters.Enable_Property_Output = 1  # crash
-    #config.parameters.Report_Event_Recorder_Events = ["VaccineDistributed", "PropertyChange", "NewInfectionEvent" ]
+    config.parameters.Enable_Property_Output = 0
     config.parameters.Report_Event_Recorder_Events = ["NewInfectionEvent" ]
     config.parameters["Listed_Events"] = ["VaccineDistributed"]  # old school
 
     config.parameters.Report_Typhoid_ByAgeAndGender_Start_Year = 2010
     config.parameters.Report_Typhoid_ByAgeAndGender_Stop_Year = 2030
-    config.parameters.Age_Initialization_Distribution_Type = "DISTRIBUTION_COMPLEX"
+    #config.parameters.Age_Initialization_Distribution_Type = "DISTRIBUTION_COMPLEX" # move to after
     config.parameters.Typhoid_3year_Susceptible_Fraction = 0
     config.parameters.Typhoid_6month_Susceptible_Fraction = 0
     config.parameters.Typhoid_6year_Susceptible_Fraction = 0
@@ -151,7 +150,7 @@ def add_vax_intervention(campaign, values, min_age=0.75, max_age=15, binary_immu
     import emodpy_typhoid.interventions.typhoid_vaccine as tv
     print(f"Telling emod-api to use {manifest.schema_file} as schema.")
     campaign.set_schema(manifest.schema_file)
-    camp_coverage = values['coverage_camp']
+    camp_coverage = values['coverage']
 
     if binary_immunity:
         tv_iv = tv.new_vax(campaign,
@@ -219,6 +218,7 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
     task.config.parameters.Demographics_Filenames = ["demographics.json","TestDemographics_pak_updated.json"]
     task.config.parameters.Death_Rate_Dependence = "NONDISEASE_MORTALITY_BY_YEAR_AND_AGE_FOR_EACH_GENDER"
     task.config.parameters.Birth_Rate_Dependence = "INDIVIDUAL_PREGNANCIES_BY_AGE_AND_YEAR"
+    task.config.parameters.Age_Initialization_Distribution_Type = "DISTRIBUTION_COMPLEX"
     # this is dumb
     task.common_assets.add_directory(assets_directory=manifest.assets_input_dir)
     task.set_sif(manifest.sif)
