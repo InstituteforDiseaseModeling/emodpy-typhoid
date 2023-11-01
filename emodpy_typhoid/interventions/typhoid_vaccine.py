@@ -139,7 +139,7 @@ def new_routine_immunization(
          coverage (float, optional): Demographic coverage of the intervention. Default is 1.0.
          node_ids (list, optional): List of node IDs where the intervention is applied. Default is None.
          property_restrictions_list (list, optional): List of property restrictions for the intervention. Default is an empty list.
-         co_event (string, optional): The name of the event to be broadcast. This event name can be set in the Report_Event_Recorder_Events configuration parameter. It will be collected in ReportEventRecorder.csv with default event "VaccineDistributed" if not set with other name.
+         co_event (str, optional): The name of the event to be broadcast. This event name can be set in the Report_Event_Recorder_Events configuration parameter. It will be collected in ReportEventRecorder.csv with default event "VaccineDistributed" if not set with other name.
 
      Returns:
          TriggeredCampaignEvent: An instance of a triggered campaign event with the TyphoidVaccine intervention.
