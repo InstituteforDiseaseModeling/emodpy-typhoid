@@ -156,7 +156,8 @@ class TyphoidVaxTests(unittest.TestCase):
                                       schema_path=manifest.schema_file, param_custom_cb=set_param_fn,
                                       ep4_custom_cb=None)
 
-        task.common_assets.add_asset("../../examples/HINTy/Assets/TestDemographics_pak_updated.json")
+        current_dir = os.path.dirname(__file__)
+        task.common_assets.add_asset(os.path.join(current_dir, "../../examples/HINTy/Assets/TestDemographics_pak_updated.json"))
         task.set_sif(manifest.sif)
         return task
 
