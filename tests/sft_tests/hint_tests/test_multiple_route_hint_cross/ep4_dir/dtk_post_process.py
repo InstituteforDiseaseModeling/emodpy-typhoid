@@ -6,7 +6,7 @@ import pandas as pd
 
 from idm_test.dtk_test.sft_class import arg_parser, SFT
 
-class HINTCorssTest(SFT):
+class HINTCrossTest(SFT):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -46,9 +46,9 @@ class HINTCorssTest(SFT):
 
 def application(output_folder="output", my_arg=None):
     if not my_arg:
-        my_sft = HINTCorssTest(stdout='stdout.txt')
+        my_sft = HINTCrossTest(stdout='stdout.txt')
     else:
-        my_sft = HINTCorssTest(
+        my_sft = HINTCrossTest(
             output=my_arg.output, stdout='stdout.txt', json_report=my_arg.json_report, event_csv=my_arg.event_csv,
             config=my_arg.config, campaign=my_arg.campaign, report_name=my_arg.report_name, debug=my_arg.debug)
     my_sft.run()
