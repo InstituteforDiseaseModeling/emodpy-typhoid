@@ -150,7 +150,10 @@ def add_vax_intervention(campaign, values, min_age=0.75, max_age=15, binary_immu
     import emodpy_typhoid.interventions.typhoid_vaccine as tv
     print(f"Telling emod-api to use {manifest.schema_file} as schema.")
     campaign.set_schema(manifest.schema_file)
-    camp_coverage = values['coverage']
+    if 'coverage' in values:
+        camp_coverage = values['coverage']
+    else:
+        camp_coverage = values['coverage_camp']
 
     if binary_immunity:
         tv_iv = tv.new_vax(campaign,
@@ -286,6 +289,17 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
             sweep_list.append({'start_day_offset': c[0], 'efficacy': c[1], 'coverage': c[2], 'decay_constant': c[3]})
         return sweep_list
 
+    def get_sweep_list_just_one():
+        start_day_offset = [1]
+        vax_effs = [1]
+        decay = [3000]
+        cov = [0.75]
+        combinations = list(itertools.product(start_day_offset, vax_effs, cov, decay))
+        sweep_list = []
+        for c in combinations:
+            sweep_list.append({'start_day_offset': c[0], 'efficacy': c[1], 'coverage_camp': c[2], 'decay_constant': c[3]})
+        return sweep_list
+
     def get_sweep_list_from_csv():
         # This is wrong. Just load rows. Code is recreating. But have to stop work for now.
         import pandas as pd
@@ -293,8 +307,8 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
         raise NotImplemented( "get_sweep_list_from_csv" )
 
     def get_config_sweep_list():
-        tac = [ 13435, 15320 ]
-        tel = [ 5.0, 7.0 ]
+        tac = [ 13435 ]
+        tel = [ 7.0 ]
         combinations = list(itertools.product(tac, tel))
         sweep_list = []
         for c in combinations:
@@ -307,7 +321,8 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
             "Coverage": get_sweep_list_coverage,
             "Coverage_RIA": get_sweep_list_coverage_ria,
             "Coverage_Camp": get_sweep_list_coverage_camp,
-            "Vax_Duration": get_sweep_list_duration
+            "Vax_Duration": get_sweep_list_duration,
+            "Just_One": get_sweep_list_just_one
             }
 
     if sweep_choice not in sweep_selections.keys():
@@ -341,7 +356,7 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
 if __name__ == "__main__":
     import emod_typhoid.bootstrap as dtk
 
-    dtk.setup(manifest.model_dl_dir)
+    #dtk.setup(manifest.model_dl_dir)
 
     import sys
-    run( sys.argv[1] if len(sys.argv)>1 else "Efficacy" )
+    run( sys.argv[1] if len(sys.argv)>1 else "Just_One" )

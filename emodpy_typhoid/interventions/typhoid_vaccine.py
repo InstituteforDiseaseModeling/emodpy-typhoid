@@ -25,7 +25,7 @@ def new_intervention( camp, efficacy=0.82, mode="Shedding", constant_period=0, d
          constant_period (float, optional): The constant period of the waning effect in days. Default is 0.
          decay_constant (float, optional): The decay time constant for the waning effect. Default is 6935.0.
          expected_expiration (float, optional): The mean duration before efficacy becomes 0. If this is set to non-zero value, the constant_period and decay_constant are ignored. These are two different modes of waning.
-
+         deduplication_policy (string, optional): Defaults to 'replace'. Can also be 'combine'. 
 
      Returns:
          TyphoidVaccine: A fully configured instance of the TyphoidVaccine intervention with the specified parameters.
@@ -36,9 +36,10 @@ def new_intervention( camp, efficacy=0.82, mode="Shedding", constant_period=0, d
     intervention.Mode = mode
     intervention.Changing_Effect = _get_waning( constant_period=constant_period, decay_constant=decay_constant, expected_expiration=expected_expiration ) 
     intervention.Changing_Effect.Initial_Effect = efficacy
+
     return intervention
 
-def new_vax( camp, efficacy=0.82, mode="Acquisition", constant_period=0, decay_constant=0, expected_expiration=0 ):
+def new_vax( camp, efficacy=0.82, mode="Acquisition", constant_period=0, decay_constant=0, expected_expiration=0, deduplication_policy="replace" ):
     """
      Create a new 'SimpleVaccine' intervention with specified parameters. If you use this function directly, you'll need to distribute the intervention with a function like ScheduledCampaignEvent or TriggeredCampaignEvent from emod_api.interventions.common.
 
@@ -63,6 +64,16 @@ def new_vax( camp, efficacy=0.82, mode="Acquisition", constant_period=0, decay_c
         intervention.Vaccine_Type = "General"
     else:
         raise ValueError( f"mode {mode} not recognized. Options are: 'Acquisition', 'Transmission', or 'All'." )
+
+    # replace: DAD=1, EIR=1
+    # combine: DAD=1, EIR=0
+    intervention.Dont_Allow_Duplicates = 1
+    if deduplication_policy == "replace":
+        intervention.Enable_Intervention_Replacement = 1
+    elif deduplication_policy == "combine":
+        intervention.Enable_Intervention_Replacement = 0
+    else:
+        raise ValueError( f"duplication_policy needs to be 'replace' or 'combine', not '{duplication_policy}'." )
 
     intervention.Waning_Config = _get_waning( constant_period=constant_period, decay_constant=decay_constant, expected_expiration=expected_expiration ) 
     intervention.Waning_Config.Initial_Effect = efficacy
