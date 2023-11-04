@@ -1,0 +1,12 @@
+Bootstrap: localimage
+From: Assets/my_shiny_new.sif
+
+%environment
+    # ADD our asset to path so we can add live versions
+    export PYTHONPATH=Assets/:.
+	#export PYTHONPATH=$(pwd)/Assets/site-packages:$(pwd)/Assets/:$PYTHONPATH
+%post
+    pip3 install --no-cache-dir idm-test==0.1.2 --extra-index-url https://packages.idmod.org/api/pypi/pypi-production/simple
+
+%runscript
+    echo add idm-test to my_shiny_new.sif

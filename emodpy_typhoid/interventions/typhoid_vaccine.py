@@ -95,14 +95,18 @@ def new_triggered_intervention(
          coverage (float, optional): Demographic coverage of the intervention. Default is 1.0.
          node_ids (list, optional): List of node IDs where the intervention is applied. Default is None.
          property_restrictions_list (list, optional): List of property restrictions for the intervention. Default is an empty list.
-         co_event (None, optional): Expansion slot for future use.
+         co_event (None, optional): The name of the event to be broadcast. This event name can be set in the Report_Event_Recorder_Events configuration parameter. It will be collected in ReportEventRecorder.csv with default event "VaccineDistributed".
 
      Returns:
          TriggeredCampaignEvent: An instance of a triggered campaign event with the TyphoidVaccine intervention.
     """
     iv = new_intervention( camp, efficacy=efficacy, mode=mode, constant_period=constant_period, decay_constant=decay_constant )
-
-    event = common.TriggeredCampaignEvent( camp, Start_Day=start_day, Triggers=triggers, Demographic_Coverage=coverage, Intervention_List=[ iv ], Node_Ids=node_ids, Property_Restrictions=property_restrictions_list, Event_Name="Triggered Typhoid Vax" )
+    if co_event:
+        signal = common.BroadcastEvent(camp, co_event)
+        iv = [iv, signal]
+    else:
+        iv = [iv]
+    event = common.TriggeredCampaignEvent( camp, Start_Day=start_day, Triggers=triggers, Demographic_Coverage=coverage, Intervention_List=iv, Node_Ids=node_ids, Property_Restrictions=property_restrictions_list, Event_Name="Triggered Typhoid Vax" )
 
     return event
 
@@ -135,7 +139,7 @@ def new_routine_immunization(
          coverage (float, optional): Demographic coverage of the intervention. Default is 1.0.
          node_ids (list, optional): List of node IDs where the intervention is applied. Default is None.
          property_restrictions_list (list, optional): List of property restrictions for the intervention. Default is an empty list.
-         co_event (None, optional): Expansion slot for future use.
+         co_event (str, optional): The name of the event to be broadcast. This event name can be set in the Report_Event_Recorder_Events configuration parameter. It will be collected in ReportEventRecorder.csv with default event "VaccineDistributed" if not set with other name.
 
      Returns:
          TriggeredCampaignEvent: An instance of a triggered campaign event with the TyphoidVaccine intervention.
@@ -185,17 +189,19 @@ def new_scheduled_intervention(
          coverage (float, optional): Demographic coverage of the intervention. Default is 1.0.
          node_ids (list, optional): List of node IDs where the intervention is applied. Default is None.
          property_restrictions_list (list, optional): List of property restrictions for the intervention. Default is an empty list.
-         co_event (None, optional): Expansion slot for future use.
+         co_event (None, optional): The name of the event to be broadcast. This event name can be set in the Report_Event_Recorder_Events configuration parameter. It will be collected in ReportEventRecorder.csv if set not None or "".
 
      Returns:
          ScheduledCampaignEvent: An instance of a scheduled campaign event with the TyphoidVaccine intervention.
     
     """
     iv = new_intervention( camp, efficacy=efficacy, mode=mode, constant_period=constant_period, decay_constant=decay_constant )
-
-    #event = common.ScheduledCampaignEvent( camp, Start_Day=start_day, Demographic_Coverage=coverage, Intervention_List=[ act_intervention, bcast_intervention ], Node_Ids=nodeIDs, Property_Restrictions=property_restrictions_list )
-    event = common.ScheduledCampaignEvent( camp, Start_Day=start_day, Demographic_Coverage=coverage, Intervention_List=[ iv ], Node_Ids=node_ids, Property_Restrictions=property_restrictions_list )
-
+    if co_event:
+        signal = common.BroadcastEvent(camp, co_event)
+        iv = [iv, signal]
+    else:
+        iv = [iv]
+    event = common.ScheduledCampaignEvent( camp, Start_Day=start_day, Demographic_Coverage=coverage, Intervention_List=iv, Node_Ids=node_ids, Property_Restrictions=property_restrictions_list )
     return event
 
 def new_intervention_as_file( camp, start_day, filename=None ):
