@@ -377,7 +377,6 @@ class MultiRouteHINTTest(unittest.TestCase):
             total_population_C = df[['HINT Group', 'Population']].groupby('HINT Group').sum().loc['Region:C'].values[0]
             total_population_D = df[['HINT Group', 'Population']].groupby('HINT Group').sum().loc['Region:D'].values[0]
             total_population = total_population_A + total_population_B + total_population_C + total_population_D
-            # Verify each group (A,B,C,D) has rough 1/4 of population since we build demographic from HINT with:
             # Values = ["A", "B", "C", "D"],
             # InitialDistribution = [0.1, 0.2, 0.3, 0.4]
             self.assertAlmostEqual(total_population_A / total_population, 0.1, delta=0.05)
@@ -499,7 +498,6 @@ class MultiRouteHINTTest(unittest.TestCase):
             total_population_C = df[['HINT Group', 'Population']].groupby('HINT Group').sum().loc['Region:C'].values[0]
             total_population_D = df[['HINT Group', 'Population']].groupby('HINT Group').sum().loc['Region:D'].values[0]
             total_population = total_population_A + total_population_B + total_population_C + total_population_D
-            # Verify each group (A,B,C,D) has rough 1/4 of population since we build demographic from HINT with:
             # Values = ["A", "B", "C", "D"],
             # InitialDistribution = [0.1, 0.2, 0.3, 0.4]
             self.assertAlmostEqual(total_population_A / total_population, 0.1, delta=0.05)
@@ -616,7 +614,6 @@ class MultiRouteHINTTest(unittest.TestCase):
             total_population_C = df[['HINT Group', 'Population']].groupby('HINT Group').sum().loc['Region:C'].values[0]
             total_population_D = df[['HINT Group', 'Population']].groupby('HINT Group').sum().loc['Region:D'].values[0]
             total_population = total_population_A + total_population_B + total_population_C + total_population_D
-            # Verify each group (A,B,C,D) has rough 1/4 of population since we build demographic from HINT with:
             # Values = ["A", "B", "C", "D"],
             # InitialDistribution = [0.1, 0.2, 0.3, 0.4]
             self.assertAlmostEqual(total_population_A / total_population, 0.1, delta=0.05)
