@@ -22,7 +22,7 @@ from emodpy_typhoid.utility.sweeping import ItvFn, set_param, sweep_functions, C
 
 BASE_YEAR = 1990
 SIMULATION_DURATION_IN_YEARS = 40
-CAMP_START_YEAR = 2020
+CAMP_START_YEAR = 2021.169
 FWD_CAMP_START_YEAR = 2024.25
 
 
@@ -103,7 +103,7 @@ def build_camp():
 
 def build_demog():
     """
-    Build a demographics input file for the DTK using emod_api.
+    Build a demographics input file for the DTK using emod_api. 
     """
     import emodpy_typhoid.demographics.TyphoidDemographics as Demographics  # OK to call into emod-api
 
@@ -125,6 +125,37 @@ def build_demog():
     return demog
 
 
+# def add_vax_intervention(campaign, values):
+#     import emodpy_typhoid.interventions.typhoid_vaccine as tv
+#     print(f"Telling emod-api to use {manifest.schema_file} as schema.")
+#     campaign.set_schema(manifest.schema_file)
+#     ria = tv.new_routine_immunization(campaign,
+#                                       efficacy=values['efficacy'],
+#                                       decay_constant=0,
+#                                       expected_expiration=values['expected_expiration'],
+#                                       start_day=year_to_days(CAMP_START_YEAR) + values['start_day_offset'],
+#                                       coverage=values['coverage']
+#                                       )
+#
+#     notification_iv = comm.BroadcastEvent(campaign, "VaccineDistributed")
+#     campaign.add(ria)
+#     #
+#     tv_iv = tv.new_vax(campaign,
+#                        efficacy=values['efficacy'],
+#                        decay_constant=0,
+#                        constant_period=0,
+#                        expected_expiration = values['expected_expiration']
+#                        )
+#     one_time_campaign = comm.ScheduledCampaignEvent(campaign,
+#                                                     Start_Day=year_to_days(CAMP_START_YEAR) + values['start_day_offset'],
+#                                                     Intervention_List=[tv_iv, notification_iv],
+#                                                     Demographic_Coverage=values['coverage'],
+#                                                     Target_Age_Min=0.75,
+#                                                     Target_Age_Max=15
+#                                                     )
+#     campaign.add(one_time_campaign)
+#     return {"start_day": values['start_day_offset'], 'efficacy': values['efficacy'], 'coverage': values['coverage'],
+#             'expected_expiration': values['expected_expiration']}
 def add_vax_intervention(campaign, values, min_age=0.75, max_age=15, binary_immunity=True):
     """
     Add 1 or both vaccine interventions:
@@ -155,14 +186,14 @@ def add_vax_intervention(campaign, values, min_age=0.75, max_age=15, binary_immu
                            decay_constant=values['decay_constant'],
                            constant_period=0)
 
-    def add_historical_vax(camp, ria_coverage=0.75, camp_coverage=0.75, efficacy=0.9, expiration=6 * 365):
+    def add_historical_vax( camp, ria_coverage=0.75, camp_coverage=0.75, efficacy=0.8, expiration=365 * 6 ):
         import emodpy_typhoid.interventions.typhoid_vaccine as tv
 
         ria = tv.new_routine_immunization(camp,
                                           efficacy=efficacy,
                                           constant_period=0,
                                           expected_expiration=expiration,
-                                          # decay_constant=values['decay_constant'],
+                                          #decay_constant=values['decay_constant'],
                                           start_day=year_to_days(CAMP_START_YEAR),
                                           coverage=ria_coverage)
         tv_iv = tv.new_vax(camp,
@@ -178,8 +209,8 @@ def add_vax_intervention(campaign, values, min_age=0.75, max_age=15, binary_immu
                                                         Start_Day=year_to_days(CAMP_START_YEAR),
                                                         Intervention_List=[tv_iv, notification_iv],
                                                         Demographic_Coverage=camp_coverage,
-                                                        Target_Age_Min=min_age,
-                                                        Target_Age_Max=max_age
+                                                        Target_Age_Min=0.75,
+                                                        Target_Age_Max=15
                                                         )
         camp.add(one_time_campaign)
 
@@ -233,7 +264,7 @@ def get_sweep_builders(sweep_list, sweep_config):
         CfgFn(sweep_config_func, y)
     ]
         for ce in sweep_list  # for sweep on sweep_list
-        for x in range(2)  # for sweep Run_Number
+        for x in range(1)  # for sweep Run_Number
         for y in sweep_config
     ]
 
@@ -257,23 +288,10 @@ def run_test():
     task.common_assets.add_directory(assets_directory=manifest.assets_input_dir)
     task.set_sif(manifest.sif)
     # Create simulation sweep with builder
-    # start_day_offset = [1]
-    # # vax_effs = np.linspace(0, 1.0, 3)  # 0.0, 0.5, 1.0
-    # vax_effs = [0.9]
-    # # decay_constant = [2000, 3000]
-    # expected_expiration = [2190, 6935]
-    # # cov = np.linspace(start=0.5, stop=1.0, num=6)
-    # cov = [0.5, 0.75, 1]
-    # sweep_list = []
-    # Typhoid_Acute_Infectiousness = [10000, 13000, 16000]
-    # Typhoid_Exposure_Lambda = [0, 5, 10]
-    # Typhoid_Environmental_Exposure_Rate = [0.04, 0.28, 0.4, 0.54]
-    # Typhoid_Contact_Exposure_Rate = [0.009, 0.02, 0.4, 1.0]
-    # Typhoid_Symptomatic_Fraction = [0.04, 0.05, 0.06]
     start_day_offset = [1]
     vax_effs = [0.9]
-    expected_expiration = [2190]
-    cov = [1]
+    expected_expiration = [2*365, 4*365, 6*365]
+    cov = [0.75]
     sweep_list = []
     Typhoid_Acute_Infectiousness = [13000]
     Typhoid_Exposure_Lambda = [5]
@@ -284,7 +302,7 @@ def run_test():
     step = 0.05
     my_array = np.linspace(min_value, max_value, num=int((max_value - min_value) / step) + 1)
 
-    Typhoid_Symptomatic_Fraction = my_array
+    Typhoid_Symptomatic_Fraction = [0.06]
     sweep_config = []
     combinations_config = list(
         itertools.product(Typhoid_Acute_Infectiousness, Typhoid_Exposure_Lambda, Typhoid_Environmental_Exposure_Rate,
@@ -302,11 +320,11 @@ def run_test():
     # create TemplatedSimulations from task and builders
     ts = TemplatedSimulations(base_task=task, builders=builders)
     # create experiment from TemplatedSimulations
-    experiment = Experiment.from_template(ts, name="test_vax_sweep_configs")
+    experiment = Experiment.from_template(ts, name="test_vax_sweep_configs_Punjab_case1")
     # The last step is to call run() on the ExperimentManager to run the simulations.
     experiment.run(wait_until_done=True, platform=platform)
-    #exp_id = 'f6bd69fb-ec79-ee11-92fd-f0921c167864'
-    #experiment = platform.get_item(exp_id, item_type=ItemType.EXPERIMENT)
+    # exp_id = '87d7d4eb-3f6a-ee11-92fc-f0921c167864'
+    # experiment = platform.get_item(exp_id, item_type=ItemType.EXPERIMENT)
     task.handle_experiment_completion(experiment)
 
     # download and plot some stuff.
