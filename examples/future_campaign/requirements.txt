@@ -2,4 +2,4 @@
 emodpy-typhoid==0.0.6.dev0
 emodpy==1.22.0.dev3
 emod-api==1.31.0.dev1
-emod-typhoid==0.0.4.dev5
+emod-typhoid==0.0.4.dev7
