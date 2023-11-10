@@ -94,14 +94,14 @@ def build_camp():
         ria = tv.new_routine_immunization(camp,
                                           efficacy=efficacy,
                                           constant_period=0,
-                                          expected_expiration=expiration,
-                                          #decay_constant=values['decay_constant'],
+                                          #expected_expiration=expiration,
+                                          decay_constant=expiration,
                                           start_day=year_to_days(CAMP_START_YEAR),
                                           coverage=ria_coverage)
         tv_iv = tv.new_vax(camp,
                            efficacy=efficacy,
-                           expected_expiration=expiration,
-                           #decay_constant=values['decay_constant'],
+                           #expected_expiration=expiration,
+                           decay_constant=expiration,
                            constant_period=0)
 
         notification_iv = comm.BroadcastEvent(camp, "VaccineDistributed")
@@ -113,7 +113,7 @@ def build_camp():
                                                         Demographic_Coverage=camp_coverage,
                                                         Target_Age_Min=0.75,
                                                         Target_Age_Max=15
-                                                        )
+                                                       )
         camp.add(one_time_campaign)
 
     #add_historical_vax( camp )
@@ -167,6 +167,12 @@ def add_vax_intervention(campaign, values, min_age=0.75, max_age=15, binary_immu
                        constant_period=0)
 
     notification_iv = comm.BroadcastEvent(campaign, "VaccineDistributed")
+    # NOTE: the order of interventions in Intervention_List matters. This is because multiple
+    # interventions are delivered using a MultiInterventionDistributor intervention and de-duplication
+    # operates on Intervention_Name, so that when we try to distribute this intervention 'package',
+    # the model looks at the name of the existing intervention, which is the vax, and the name of the
+    # 'package' here, which would be MultiInterventionDistributor. But there is code in emod_api which
+    # sets the MID name to the name of the first intervention in the list, which here will be SimpleVaccine.
     one_time_campaign = comm.ScheduledCampaignEvent(campaign,
                                                     Start_Day=year_to_days(FWD_CAMP_START_YEAR),
                                                     Intervention_List=[tv_iv, notification_iv],
@@ -334,10 +340,7 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
     else:
         avi_age_coverage = partial( add_vax_intervention, min_age=0, max_age=125 )
 
-    if binary_immunity:
-        avi_decay = partial( avi_age_coverage, binary_immunity=True )
-    else:
-        avi_decay = partial( avi_age_coverage, binary_immunity=False )
+    avi_decay = partial( avi_age_coverage, binary_immunity=binary_immunity )
 
     builders = get_sweep_builders(sweep_list, get_config_sweep_list(), add_vax_fn=avi_decay)
 
@@ -359,4 +362,4 @@ if __name__ == "__main__":
     #dtk.setup(manifest.model_dl_dir)
 
     import sys
-    run( sys.argv[1] if len(sys.argv)>1 else "Just_One" )
+    run( sys.argv[1] if len(sys.argv)>1 else "Just_One", binary_immunity=False )
