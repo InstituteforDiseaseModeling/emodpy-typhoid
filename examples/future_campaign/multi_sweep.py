@@ -150,10 +150,12 @@ def add_vax_intervention(campaign, values, min_age=0.75, max_age=15, binary_immu
     import emodpy_typhoid.interventions.typhoid_vaccine as tv
     print(f"Telling emod-api to use {manifest.schema_file} as schema.")
     campaign.set_schema(manifest.schema_file)
-    if 'coverage' in values:
-        camp_coverage = values['coverage']
-    else:
-        camp_coverage = values['coverage_camp']
+    for key in values.keys():
+        if 'coverage' in key:
+            camp_coverage = values[key]
+            break
+        else:
+            camp_coverage = values['coverage_camp']
 
     if binary_immunity:
         tv_iv = tv.new_vax(campaign,
@@ -359,7 +361,7 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
 if __name__ == "__main__":
     import emod_typhoid.bootstrap as dtk
 
-    #dtk.setup(manifest.model_dl_dir)
+    dtk.setup(manifest.model_dl_dir)
 
     import sys
     run( sys.argv[1] if len(sys.argv)>1 else "Just_One", binary_immunity=False )
