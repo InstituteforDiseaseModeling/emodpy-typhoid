@@ -65,13 +65,13 @@ def new_vax( camp, efficacy=0.82, mode="Acquisition", constant_period=0, decay_c
     else:
         raise ValueError( f"mode {mode} not recognized. Options are: 'Acquisition', 'Transmission', or 'All'." )
 
+    # combine: DAD=0
     # replace: DAD=1, EIR=1
-    # combine: DAD=1, EIR=0
-    intervention.Dont_Allow_Duplicates = 1
+    # abort: DAD=1, EIR=0  -- not supported
     if deduplication_policy == "replace":
-        intervention.Enable_Intervention_Replacement = 1
+        intervention.Enable_Intervention_Replacement = 1 # D_A_D should be set implicitly
     elif deduplication_policy == "combine":
-        intervention.Enable_Intervention_Replacement = 0
+        intervention.Dont_Allow_Duplicates = 0
     else:
         raise ValueError( f"deduplication_policy needs to be 'replace' or 'combine', not '{duplication_policy}'." )
 
