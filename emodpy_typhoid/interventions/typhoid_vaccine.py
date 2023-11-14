@@ -73,7 +73,7 @@ def new_vax( camp, efficacy=0.82, mode="Acquisition", constant_period=0, decay_c
     elif deduplication_policy == "combine":
         intervention.Dont_Allow_Duplicates = 0
     else:
-        raise ValueError( f"deduplication_policy needs to be 'replace' or 'combine', not '{duplication_policy}'." )
+        raise ValueError( f"deduplication_policy needs to be 'replace' or 'combine', not '{deduplication_policy}'." )
 
     intervention.Waning_Config = _get_waning( constant_period=constant_period, decay_constant=decay_constant, expected_expiration=expected_expiration ) 
     intervention.Waning_Config.Initial_Effect = efficacy
