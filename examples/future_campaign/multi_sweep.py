@@ -154,8 +154,6 @@ def add_vax_intervention(campaign, values, min_age=0.75, max_age=15, binary_immu
         if 'coverage' in key:
             camp_coverage = values[key]
             break
-        else:
-            camp_coverage = values['coverage_camp']
 
     if binary_immunity:
         tv_iv = tv.new_vax(campaign,
