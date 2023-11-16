@@ -220,9 +220,19 @@ def get_sweep_builders(camp_sweep_list, config_sweep_list, add_vax_fn=add_vax_in
 
 def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
     platform = Platform("SLURM", node_group="idm_48cores", priority="Highest") 
+
+    # I think this isn't the simplest way to do this but I'm being lazy.
+    def ep4_fn( task ):
+        import emodpy.emod_task as emod_task
+        print( f"Using ep4 scripts from {manifest.ep4_path}." )
+        task = emod_task.add_ep4_from_path(task, manifest.ep4_path)
+        return task
+
     task = EMODTask.from_default2(config_path="config.json", eradication_path=manifest.eradication_path,
                                   campaign_builder=build_camp, demog_builder=build_demog, schema_path=manifest.schema_file,
-                                  param_custom_cb=set_param_fn, ep4_custom_cb=None)
+                                  param_custom_cb=set_param_fn, ep4_custom_cb=ep4_fn)
+    task.common_assets.add_directory(assets_directory="EP4/R", relative_path="python")
+
     # normally we don't force-set parameters at this point
     task.config.parameters.Demographics_Filenames = ["demographics.json","TestDemographics_pak_updated.json"]
     task.config.parameters.Death_Rate_Dependence = "NONDISEASE_MORTALITY_BY_YEAR_AND_AGE_FOR_EACH_GENDER"
