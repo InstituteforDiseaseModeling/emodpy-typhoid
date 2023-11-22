@@ -155,7 +155,8 @@ def new_routine_immunization(
      Returns:
          TriggeredCampaignEvent: An instance of a triggered campaign event with the TyphoidVaccine intervention.
     """
-    iv = new_vax( camp, efficacy=efficacy, mode=mode, constant_period=constant_period, decay_constant=decay_constant, expected_expiration=expected_expiration )
+    # routine_immunization will always be a first vax (unless something is really whack) so mode doesn't matter.
+    iv = new_vax( camp, deduplication_policy="combine", efficacy=efficacy, mode=mode, constant_period=constant_period, decay_constant=decay_constant, expected_expiration=expected_expiration )
     if co_event:
         signal = common.BroadcastEvent( camp, co_event )
         iv = [ iv, signal ]
