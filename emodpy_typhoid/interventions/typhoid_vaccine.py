@@ -38,7 +38,7 @@ def new_intervention( camp, efficacy=0.82, mode="Shedding", constant_period=0, d
 
     return intervention
 
-def new_vax( camp, , deduplication_policy, efficacy=0.82, mode="Acquisition", constant_period=0, decay_constant=0, expected_expiration=0 ):
+def new_vax( camp, deduplication_policy, efficacy=0.82, mode="Acquisition", constant_period=0, decay_constant=0, expected_expiration=0 ):
     """
      Create a new 'SimpleVaccine' intervention with specified parameters. If you use this function directly, you'll need to distribute the intervention with a function like ScheduledCampaignEvent or TriggeredCampaignEvent from emod_api.interventions.common.
 
