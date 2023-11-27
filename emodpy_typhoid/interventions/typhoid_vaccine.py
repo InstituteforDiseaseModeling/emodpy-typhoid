@@ -38,18 +38,18 @@ def new_intervention( camp, efficacy=0.82, mode="Shedding", constant_period=0, d
 
     return intervention
 
-def new_vax( camp, deduplication_policy, efficacy=0.82, mode="Acquisition", constant_period=0, decay_constant=0, expected_expiration=0 ):
+def new_vax( camp, efficacy=0.82, mode="Acquisition", constant_period=0, decay_constant=0, expected_expiration=0, deduplication_policy="replace"  ):
     """
      Create a new 'SimpleVaccine' intervention with specified parameters. If you use this function directly, you'll need to distribute the intervention with a function like ScheduledCampaignEvent or TriggeredCampaignEvent from emod_api.interventions.common.
 
      Args:
          camp (Camp): The camp to which the intervention is applied.
-         deduplication_policy (string): "replace" (default) or "combine". If giving vax to someone who already has one, based on Intervention_Name which defaults to intervention classname ("SimpleVaccine"), "replace" will purge the existing one, and "combine" will add the new one without replacement, and rely on code and configuration to calculate the combinatorix. If using "combine", make sure you _know_ the combinatorix.
          efficacy (float, optional): The efficacy of the Typhoid vaccine. Default is 0.82.
          mode (str, optional): The mode of the intervention. Default is "Acquisition" Can also be "Transmission" or "All".
          constant_period (float, optional): The constant period of the waning effect in days. Default is 0.
          decay_constant (float, optional): The decay time constant for the waning effect. Default is 6935.0.
          expected_expiration (float, optional): The mean duration before efficacy becomes 0. If this is set to non-zero value, the constant_period and decay_constant are ignored. These are two different modes of waning.
+         deduplication_policy (string): "replace" (default) or "combine". If giving vax to someone who already has one, based on Intervention_Name which defaults to intervention classname ("SimpleVaccine"), "replace" will purge the existing one, and "combine" will add the new one without replacement, and rely on code and configuration to calculate the combinatorix. If using "combine", make sure you _know_ the combinatorix.
 
      Returns:
          SimpleVaccine: A fully configured instance of the SimpleVaccine intervention with the specified parameters.
@@ -155,6 +155,7 @@ def new_routine_immunization(
      Returns:
          TriggeredCampaignEvent: An instance of a triggered campaign event with the TyphoidVaccine intervention.
     """
+    # routine_immunization will always be a first vax (unless something is really whack) so mode doesn't matter.
     iv = new_vax( camp, efficacy=efficacy, mode=mode, constant_period=constant_period, decay_constant=decay_constant, expected_expiration=expected_expiration )
     if co_event:
         signal = common.BroadcastEvent( camp, co_event )
