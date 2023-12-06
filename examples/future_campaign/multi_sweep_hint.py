@@ -85,7 +85,7 @@ def build_camp():
                                           node_ids=[1],
                                           repetitions= 5,
                                           timesteps_between_repetitions=30,
-                                          ind_property_restrictions=["Region:Rural"] # just to show we can and stuff
+                                          #ind_property_restrictions=["Region:Rural"] # just to show we can and stuff
                                           )
     camp.add(ob_event)
     
@@ -130,6 +130,7 @@ def build_demog():
 
     demog = Demographics.from_template_node(lat=0, lon=0, pop=10000, name=1, forced_id=1)
     # We're getting all our demographics from a static file overlay.
+    """
     demog.AddIndividualPropertyAndHINT( Property="Region",
             Values = [ "Rural", "Urban" ],
             InitialDistribution = [ 0.8, 0.2 ],
@@ -141,6 +142,16 @@ def build_demog():
                             [ 1, 0.1 ],
                             [ 0.1, 1 ]
                         ]
+        )
+    """
+    demog.AddAgeDependentTransmission( 
+            Age_Bin_Edges_In_Years = [0, 5, 20, 60, -1],
+            TransmissionMatrix = [
+                [0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 5.0]
+            ]
         )
 
     return demog
@@ -300,6 +311,17 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
             sweep_list.append({'start_day_offset': c[0], 'efficacy': c[1], 'coverage': c[2], 'decay_constant': c[3]})
         return sweep_list
 
+    def get_sweep_list_just_one():
+        start_day_offset = [1]
+        vax_effs = [1]
+        decay = [3000]
+        cov = [0.75]
+        combinations = list(itertools.product(start_day_offset, vax_effs, cov, decay))
+        sweep_list = []
+        for c in combinations:
+            sweep_list.append({'start_day_offset': c[0], 'efficacy': c[1], 'coverage_camp': c[2], 'decay_constant': c[3]})
+        return sweep_list
+
     def get_sweep_list_from_csv():
         # This is wrong. Just load rows. Code is recreating. But have to stop work for now.
         import pandas as pd
@@ -307,8 +329,8 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
         raise NotImplemented( "get_sweep_list_from_csv" )
 
     def get_config_sweep_list():
-        tac = [ 13435, 15320 ]
-        tel = [ 5.0, 7.0 ]
+        tac = [ 13435 ] # , 15320 ]
+        tel = [ 5.0 ] # , 7.0 ]
         combinations = list(itertools.product(tac, tel))
         sweep_list = []
         for c in combinations:
@@ -321,7 +343,8 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
             "Coverage": get_sweep_list_coverage,
             "Coverage_RIA": get_sweep_list_coverage_ria,
             "Coverage_Camp": get_sweep_list_coverage_camp,
-            "Vax_Duration": get_sweep_list_duration
+            "Vax_Duration": get_sweep_list_duration,
+            "Just_One": get_sweep_list_just_one
             }
 
     if sweep_choice not in sweep_selections.keys():
@@ -357,4 +380,5 @@ if __name__ == "__main__":
 
     dtk.setup(manifest.model_dl_dir)
 
-    run( "Coverage_Camp" )
+    import sys
+    run( sys.argv[1] if len(sys.argv)>1 else "Just_One", binary_immunity=True )
