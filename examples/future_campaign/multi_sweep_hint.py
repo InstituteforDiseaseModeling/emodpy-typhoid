@@ -45,7 +45,7 @@ def set_param_fn(config):
     config.parameters.Report_Event_Recorder_Events = ["NewInfectionEvent" ]
     config.parameters["Listed_Events"] = ["VaccineDistributed"]  # old school
 
-    config.parameters.Report_Typhoid_ByAgeAndGender_Start_Year = 2010
+    config.parameters.Report_Typhoid_ByAgeAndGender_Start_Year = 2006
     config.parameters.Report_Typhoid_ByAgeAndGender_Stop_Year = 2030
     config.parameters.Age_Initialization_Distribution_Type = "DISTRIBUTION_COMPLEX"
     config.parameters.Typhoid_3year_Susceptible_Fraction = 0
@@ -147,11 +147,12 @@ def build_demog():
     demog.AddAgeDependentTransmission( 
             Age_Bin_Edges_In_Years = [0, 5, 20, 60, -1],
             TransmissionMatrix = [
-                [0.0, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 0.0, 5.0]
-            ]
+                [0.0, 0.0, 0.0, 1.0],
+                [0.0, 0.0, 0.0, 1.0],
+                [0.0, 0.0, 0.0, 1.0],
+                [0.0, 0.0, 0.0, 1.0]
+            ],
+            multiroute=True
         )
 
     return demog
