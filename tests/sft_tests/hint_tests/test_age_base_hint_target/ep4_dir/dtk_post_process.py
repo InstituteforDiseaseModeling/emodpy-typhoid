@@ -7,6 +7,9 @@ from idm_test.dtk_test.sft_class import arg_parser, SFT
 
 
 class AgeBaseHINTTargetTest(SFT):
+    """
+    SFTs that testing the targeting Age Bin in the Age Bin HINT TransmissionMatrix.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

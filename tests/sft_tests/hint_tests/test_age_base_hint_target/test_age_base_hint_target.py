@@ -8,6 +8,12 @@ from hint_test_helper import TestAgeBaseHint, build_camp, build_demog_target_one
 
 
 class TestAgeBaseHintTargetOneAgeBin(TestAgeBaseHint):
+    """
+    A test class that submit SFTs to Comps and run the dtk_post_process.py in ep4_dir folder and write the SFT result
+    as a tag of for the simulation in Comps.
+    Each test case will define a build_demog function and call the main test function in the base class as
+    self.age_base_hint_test(build_demog).
+    """
     @classmethod
     def setUpClass(cls):
         cls.test_name = os.path.basename(__file__)

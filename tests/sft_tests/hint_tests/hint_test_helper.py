@@ -163,6 +163,11 @@ def build_demog_target_one_age_bin(group_index=0, value=1):
 
 
 class TestAgeBaseHint(IntegrationTest):
+    """
+    Base test class for Age Base HINT test, that inherits the IntegrationTest class from
+    dm_test.dtk_test.integration.integration_test.
+    Each new test class will call the age_base_hint_test() function to perform the test.
+    """
     def setUp(self):
         self.test_name = self.case_name = str(self.test_name) + "--" + self._testMethodName
         self.platform = Platform("SLURM2", priority="Normal")
