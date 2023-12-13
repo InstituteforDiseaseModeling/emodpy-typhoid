@@ -1,0 +1,2 @@
+emodpy~=1.16
+emod-typhoid
