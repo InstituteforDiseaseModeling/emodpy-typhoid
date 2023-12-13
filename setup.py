@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
     ext_name = "emodpy_typhoid"
 
-with open('requirements_2018.txt') as requirements_file:
+with open('requirements.txt') as requirements_file:
     requirements = requirements_file.read().split("\n")
 
 setuptools.setup(
