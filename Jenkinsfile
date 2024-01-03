@@ -49,7 +49,7 @@ podTemplate(
 			def curDate = sh(returnStdout: true, script: "date").trim()
 			echo "The current date is ${curDate}"
 			echo "I am installing emodpy-typhoid from github source code"
-			sh "pip3 install -r requirements_2018.txt --index-url=https://packages.idmod.org/api/pypi/pypi-production/simple"
+			sh "pip3 install -r requirements.txt --index-url=https://packages.idmod.org/api/pypi/pypi-production/simple"
 			sh "pip3 list"
 			sh "pip3 install -e ."
 			sh "pip3 list"
