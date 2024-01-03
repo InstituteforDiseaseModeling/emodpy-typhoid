@@ -1,4 +1,0 @@
-emodpy==1.22.0.dev3
-emod_api==1.31.0.dev4
-emod-typhoid==0.0.7.dev3
-
