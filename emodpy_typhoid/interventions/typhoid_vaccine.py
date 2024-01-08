@@ -26,7 +26,6 @@ def new_intervention( camp, efficacy=0.82, mode="Shedding", constant_period=0, d
          decay_constant (float, optional): The decay time constant for the waning effect. Default is 6935.0.
          expected_expiration (float, optional): The mean duration before efficacy becomes 0. If this is set to non-zero value, the constant_period and decay_constant are ignored. These are two different modes of waning.
 
-
      Returns:
          TyphoidVaccine: A fully configured instance of the TyphoidVaccine intervention with the specified parameters.
      """
@@ -36,9 +35,10 @@ def new_intervention( camp, efficacy=0.82, mode="Shedding", constant_period=0, d
     intervention.Mode = mode
     intervention.Changing_Effect = _get_waning( constant_period=constant_period, decay_constant=decay_constant, expected_expiration=expected_expiration ) 
     intervention.Changing_Effect.Initial_Effect = efficacy
+
     return intervention
 
-def new_vax( camp, efficacy=0.82, mode="Acquisition", constant_period=0, decay_constant=0, expected_expiration=0 ):
+def new_vax( camp, efficacy=0.82, mode="Acquisition", constant_period=0, decay_constant=0, expected_expiration=0, deduplication_policy="replace"  ):
     """
      Create a new 'SimpleVaccine' intervention with specified parameters. If you use this function directly, you'll need to distribute the intervention with a function like ScheduledCampaignEvent or TriggeredCampaignEvent from emod_api.interventions.common.
 
@@ -49,6 +49,7 @@ def new_vax( camp, efficacy=0.82, mode="Acquisition", constant_period=0, decay_c
          constant_period (float, optional): The constant period of the waning effect in days. Default is 0.
          decay_constant (float, optional): The decay time constant for the waning effect. Default is 6935.0.
          expected_expiration (float, optional): The mean duration before efficacy becomes 0. If this is set to non-zero value, the constant_period and decay_constant are ignored. These are two different modes of waning.
+         deduplication_policy (string): "replace" (default) or "combine". If giving vax to someone who already has one, based on Intervention_Name which defaults to intervention classname ("SimpleVaccine"), "replace" will purge the existing one, and "combine" will add the new one without replacement, and rely on code and configuration to calculate the combinatorix. If using "combine", make sure you _know_ the combinatorix.
 
      Returns:
          SimpleVaccine: A fully configured instance of the SimpleVaccine intervention with the specified parameters.
@@ -63,6 +64,16 @@ def new_vax( camp, efficacy=0.82, mode="Acquisition", constant_period=0, decay_c
         intervention.Vaccine_Type = "General"
     else:
         raise ValueError( f"mode {mode} not recognized. Options are: 'Acquisition', 'Transmission', or 'All'." )
+
+    # combine: DAD=0
+    # replace: DAD=1, EIR=1
+    # abort: DAD=1, EIR=0  -- not supported
+    if deduplication_policy == "replace":
+        intervention.Enable_Intervention_Replacement = 1 # D_A_D should be set implicitly
+    elif deduplication_policy == "combine":
+        intervention.Dont_Allow_Duplicates = 0
+    else:
+        raise ValueError( f"deduplication_policy needs to be 'replace' or 'combine', not '{deduplication_policy}'." )
 
     intervention.Waning_Config = _get_waning( constant_period=constant_period, decay_constant=decay_constant, expected_expiration=expected_expiration ) 
     intervention.Waning_Config.Initial_Effect = efficacy
@@ -95,14 +106,18 @@ def new_triggered_intervention(
          coverage (float, optional): Demographic coverage of the intervention. Default is 1.0.
          node_ids (list, optional): List of node IDs where the intervention is applied. Default is None.
          property_restrictions_list (list, optional): List of property restrictions for the intervention. Default is an empty list.
-         co_event (None, optional): Expansion slot for future use.
+         co_event (None, optional): The name of the event to be broadcast. This event name can be set in the Report_Event_Recorder_Events configuration parameter. It will be collected in ReportEventRecorder.csv with default event "VaccineDistributed".
 
      Returns:
          TriggeredCampaignEvent: An instance of a triggered campaign event with the TyphoidVaccine intervention.
     """
     iv = new_intervention( camp, efficacy=efficacy, mode=mode, constant_period=constant_period, decay_constant=decay_constant )
-
-    event = common.TriggeredCampaignEvent( camp, Start_Day=start_day, Triggers=triggers, Demographic_Coverage=coverage, Intervention_List=[ iv ], Node_Ids=node_ids, Property_Restrictions=property_restrictions_list, Event_Name="Triggered Typhoid Vax" )
+    if co_event:
+        signal = common.BroadcastEvent(camp, co_event)
+        iv = [iv, signal]
+    else:
+        iv = [iv]
+    event = common.TriggeredCampaignEvent( camp, Start_Day=start_day, Triggers=triggers, Demographic_Coverage=coverage, Intervention_List=iv, Node_Ids=node_ids, Property_Restrictions=property_restrictions_list, Event_Name="Triggered Typhoid Vax" )
 
     return event
 
@@ -135,11 +150,12 @@ def new_routine_immunization(
          coverage (float, optional): Demographic coverage of the intervention. Default is 1.0.
          node_ids (list, optional): List of node IDs where the intervention is applied. Default is None.
          property_restrictions_list (list, optional): List of property restrictions for the intervention. Default is an empty list.
-         co_event (None, optional): Expansion slot for future use.
+         co_event (str, optional): The name of the event to be broadcast. This event name can be set in the Report_Event_Recorder_Events configuration parameter. It will be collected in ReportEventRecorder.csv with default event "VaccineDistributed" if not set with other name.
 
      Returns:
          TriggeredCampaignEvent: An instance of a triggered campaign event with the TyphoidVaccine intervention.
     """
+    # routine_immunization will always be a first vax (unless something is really whack) so mode doesn't matter.
     iv = new_vax( camp, efficacy=efficacy, mode=mode, constant_period=constant_period, decay_constant=decay_constant, expected_expiration=expected_expiration )
     if co_event:
         signal = common.BroadcastEvent( camp, co_event )
@@ -185,17 +201,19 @@ def new_scheduled_intervention(
          coverage (float, optional): Demographic coverage of the intervention. Default is 1.0.
          node_ids (list, optional): List of node IDs where the intervention is applied. Default is None.
          property_restrictions_list (list, optional): List of property restrictions for the intervention. Default is an empty list.
-         co_event (None, optional): Expansion slot for future use.
+         co_event (None, optional): The name of the event to be broadcast. This event name can be set in the Report_Event_Recorder_Events configuration parameter. It will be collected in ReportEventRecorder.csv if set not None or "".
 
      Returns:
          ScheduledCampaignEvent: An instance of a scheduled campaign event with the TyphoidVaccine intervention.
     
     """
     iv = new_intervention( camp, efficacy=efficacy, mode=mode, constant_period=constant_period, decay_constant=decay_constant )
-
-    #event = common.ScheduledCampaignEvent( camp, Start_Day=start_day, Demographic_Coverage=coverage, Intervention_List=[ act_intervention, bcast_intervention ], Node_Ids=nodeIDs, Property_Restrictions=property_restrictions_list )
-    event = common.ScheduledCampaignEvent( camp, Start_Day=start_day, Demographic_Coverage=coverage, Intervention_List=[ iv ], Node_Ids=node_ids, Property_Restrictions=property_restrictions_list )
-
+    if co_event:
+        signal = common.BroadcastEvent(camp, co_event)
+        iv = [iv, signal]
+    else:
+        iv = [iv]
+    event = common.ScheduledCampaignEvent( camp, Start_Day=start_day, Demographic_Coverage=coverage, Intervention_List=iv, Node_Ids=node_ids, Property_Restrictions=property_restrictions_list )
     return event
 
 def new_intervention_as_file( camp, start_day, filename=None ):

@@ -22,8 +22,8 @@ import manifest
 from emodpy_typhoid.utility.sweeping import ItvFn, CfgFn, set_param, sweep_functions
 
 
-BASE_YEAR = 1990
-SIMULATION_DURATION_IN_YEARS = 40
+BASE_YEAR = 2005
+SIMULATION_DURATION_IN_YEARS = 25
 CAMP_START_YEAR = 2015
 FWD_CAMP_START_YEAR = 2024.25
 
@@ -40,13 +40,14 @@ def set_param_fn(config):
     config.parameters.Inset_Chart_Reporting_Start_Year = BASE_YEAR
     config.parameters.Inset_Chart_Reporting_Stop_Year = 2030
     config.parameters.Enable_Demographics_Reporting = 0
-    config.parameters.Enable_Property_Output = 0
+    #config.parameters.Enable_Property_Output = 1  # crash
+    #config.parameters.Report_Event_Recorder_Events = ["VaccineDistributed", "PropertyChange", "NewInfectionEvent" ]
     config.parameters.Report_Event_Recorder_Events = ["NewInfectionEvent" ]
     config.parameters["Listed_Events"] = ["VaccineDistributed"]  # old school
 
     config.parameters.Report_Typhoid_ByAgeAndGender_Start_Year = 2010
     config.parameters.Report_Typhoid_ByAgeAndGender_Stop_Year = 2030
-    #config.parameters.Age_Initialization_Distribution_Type = "DISTRIBUTION_COMPLEX" # move to after
+    config.parameters.Age_Initialization_Distribution_Type = "DISTRIBUTION_COMPLEX"
     config.parameters.Typhoid_3year_Susceptible_Fraction = 0
     config.parameters.Typhoid_6month_Susceptible_Fraction = 0
     config.parameters.Typhoid_6year_Susceptible_Fraction = 0
@@ -84,7 +85,7 @@ def build_camp():
                                           node_ids=[1],
                                           repetitions= 5,
                                           timesteps_between_repetitions=30,
-                                          #ind_property_restrictions=["Region:A"]
+                                          ind_property_restrictions=["Region:Rural"] # just to show we can and stuff
                                           )
     camp.add(ob_event)
     
@@ -94,14 +95,14 @@ def build_camp():
         ria = tv.new_routine_immunization(camp,
                                           efficacy=efficacy,
                                           constant_period=0,
-                                          #expected_expiration=expiration,
-                                          decay_constant=expiration,
+                                          expected_expiration=expiration,
+                                          #decay_constant=values['decay_constant'],
                                           start_day=year_to_days(CAMP_START_YEAR),
                                           coverage=ria_coverage)
         tv_iv = tv.new_vax(camp,
                            efficacy=efficacy,
-                           #expected_expiration=expiration,
-                           decay_constant=expiration,
+                           expected_expiration=expiration,
+                           #decay_constant=values['decay_constant'],
                            constant_period=0)
 
         notification_iv = comm.BroadcastEvent(camp, "VaccineDistributed")
@@ -113,7 +114,7 @@ def build_camp():
                                                         Demographic_Coverage=camp_coverage,
                                                         Target_Age_Min=0.75,
                                                         Target_Age_Max=15
-                                                       )
+                                                        )
         camp.add(one_time_campaign)
 
     #add_historical_vax( camp )
@@ -129,6 +130,18 @@ def build_demog():
 
     demog = Demographics.from_template_node(lat=0, lon=0, pop=10000, name=1, forced_id=1)
     # We're getting all our demographics from a static file overlay.
+    demog.AddIndividualPropertyAndHINT( Property="Region",
+            Values = [ "Rural", "Urban" ],
+            InitialDistribution = [ 0.8, 0.2 ],
+            TransmissionMatrix = [
+                            [ 1, 0.1 ],
+                            [ 0.1, 1 ]
+                        ],
+            EnviroTransmissionMatrix = [
+                            [ 1, 0.1 ],
+                            [ 0.1, 1 ]
+                        ]
+        )
 
     return demog
 
@@ -150,10 +163,7 @@ def add_vax_intervention(campaign, values, min_age=0.75, max_age=15, binary_immu
     import emodpy_typhoid.interventions.typhoid_vaccine as tv
     print(f"Telling emod-api to use {manifest.schema_file} as schema.")
     campaign.set_schema(manifest.schema_file)
-    for key in values.keys():
-        if 'coverage' in key:
-            camp_coverage = values[key]
-            break
+    camp_coverage = values['coverage_camp']
 
     if binary_immunity:
         tv_iv = tv.new_vax(campaign,
@@ -167,12 +177,6 @@ def add_vax_intervention(campaign, values, min_age=0.75, max_age=15, binary_immu
                        constant_period=0)
 
     notification_iv = comm.BroadcastEvent(campaign, "VaccineDistributed")
-    # NOTE: the order of interventions in Intervention_List matters. This is because multiple
-    # interventions are delivered using a MultiInterventionDistributor intervention and de-duplication
-    # operates on Intervention_Name, so that when we try to distribute this intervention 'package',
-    # the model looks at the name of the existing intervention, which is the vax, and the name of the
-    # 'package' here, which would be MultiInterventionDistributor. But there is code in emod_api which
-    # sets the MID name to the name of the first intervention in the list, which here will be SimpleVaccine.
     one_time_campaign = comm.ScheduledCampaignEvent(campaign,
                                                     Start_Day=year_to_days(FWD_CAMP_START_YEAR),
                                                     Intervention_List=[tv_iv, notification_iv],
@@ -220,6 +224,8 @@ def get_sweep_builders(camp_sweep_list, config_sweep_list, add_vax_fn=add_vax_in
 
 def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
     platform = Platform("SLURM", node_group="idm_48cores", priority="Highest") 
+    #platform = Platform("SLURMStage", node_group="idm_48cores", priority="Highest") 
+
     task = EMODTask.from_default2(config_path="config.json", eradication_path=manifest.eradication_path,
                                   campaign_builder=build_camp, demog_builder=build_demog, schema_path=manifest.schema_file,
                                   param_custom_cb=set_param_fn, ep4_custom_cb=None)
@@ -227,7 +233,6 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
     task.config.parameters.Demographics_Filenames = ["demographics.json","TestDemographics_pak_updated.json"]
     task.config.parameters.Death_Rate_Dependence = "NONDISEASE_MORTALITY_BY_YEAR_AND_AGE_FOR_EACH_GENDER"
     task.config.parameters.Birth_Rate_Dependence = "INDIVIDUAL_PREGNANCIES_BY_AGE_AND_YEAR"
-    task.config.parameters.Age_Initialization_Distribution_Type = "DISTRIBUTION_COMPLEX"
     # this is dumb
     task.common_assets.add_directory(assets_directory=manifest.assets_input_dir)
     task.set_sif(manifest.sif)
@@ -243,7 +248,7 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
     def get_sweep_list_full():
         start_day_offset = [1]
         vax_effs = np.linspace(0.1, 1.0, 10)
-        decay = [1, 365, 3650, 36500]
+        decay = [1, 365, 3650, 365000]
         cov = np.linspace(start=0.0, stop=1.0, num=5)
         return get_sweep_list_from_values(start_day_offset, vax_effs, cov, decay)
 
@@ -295,17 +300,6 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
             sweep_list.append({'start_day_offset': c[0], 'efficacy': c[1], 'coverage': c[2], 'decay_constant': c[3]})
         return sweep_list
 
-    def get_sweep_list_just_one():
-        start_day_offset = [1]
-        vax_effs = [1]
-        decay = [3000]
-        cov = [0.75]
-        combinations = list(itertools.product(start_day_offset, vax_effs, cov, decay))
-        sweep_list = []
-        for c in combinations:
-            sweep_list.append({'start_day_offset': c[0], 'efficacy': c[1], 'coverage_camp': c[2], 'decay_constant': c[3]})
-        return sweep_list
-
     def get_sweep_list_from_csv():
         # This is wrong. Just load rows. Code is recreating. But have to stop work for now.
         import pandas as pd
@@ -313,8 +307,8 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
         raise NotImplemented( "get_sweep_list_from_csv" )
 
     def get_config_sweep_list():
-        tac = [ 13435 ]
-        tel = [ 7.0 ]
+        tac = [ 13435, 15320 ]
+        tel = [ 5.0, 7.0 ]
         combinations = list(itertools.product(tac, tel))
         sweep_list = []
         for c in combinations:
@@ -327,8 +321,7 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
             "Coverage": get_sweep_list_coverage,
             "Coverage_RIA": get_sweep_list_coverage_ria,
             "Coverage_Camp": get_sweep_list_coverage_camp,
-            "Vax_Duration": get_sweep_list_duration,
-            "Just_One": get_sweep_list_just_one
+            "Vax_Duration": get_sweep_list_duration
             }
 
     if sweep_choice not in sweep_selections.keys():
@@ -340,7 +333,10 @@ def run( sweep_choice="All", age_targeted=True, binary_immunity=True ):
     else:
         avi_age_coverage = partial( add_vax_intervention, min_age=0, max_age=125 )
 
-    avi_decay = partial( avi_age_coverage, binary_immunity=binary_immunity )
+    if binary_immunity:
+        avi_decay = partial( avi_age_coverage, binary_immunity=True )
+    else:
+        avi_decay = partial( avi_age_coverage, binary_immunity=False )
 
     builders = get_sweep_builders(sweep_list, get_config_sweep_list(), add_vax_fn=avi_decay)
 
@@ -361,5 +357,4 @@ if __name__ == "__main__":
 
     dtk.setup(manifest.model_dl_dir)
 
-    import sys
-    run( sys.argv[1] if len(sys.argv)>1 else "Just_One", binary_immunity=False )
+    run( "Coverage_Camp" )

@@ -31,9 +31,9 @@ jobs:
       - name: install test dependencies
         run: |
           pip3 install unittest-xml-reporting pytest
-#      - name: Install idm-test package
-#        run: |
-#          pip install idm-test>=0.0.13 --extra-index-url https://packages.idmod.org/api/pypi/pypi-production/simple
+      - name: Install idm-test package
+        run: |
+          pip install idm-test>=0.1.2 --extra-index-url https://packages.idmod.org/api/pypi/pypi-production/simple
       - name: Login to comps2
         run: |
           python ./.dev_scripts/create_auth_token_args.py --username "${{ secrets.COMPS_USER }}" --password "${{ secrets.COMPS_PASSWORD }}"
@@ -56,6 +56,17 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: unittest_results
+          name: workflow_results
+          path: |
+            **/test_results.xml
+      - name: run sft tests
+        run: |
+          cd tests/sft_tests
+          python run_all_sft_tests.py
+      - name: Upload workflow tests results to artifactory
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: sft_results
           path: |
             **/test_results.xml

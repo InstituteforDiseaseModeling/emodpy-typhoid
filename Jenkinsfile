@@ -88,6 +88,19 @@ podTemplate(
 			build_ok = false
 			echo e.toString()
 		}
+		try{
+			stage('SFT Test') {
+				echo "Running SFT Tests"
+				dir('tests/sft_tests') {
+				    sh 'pip3 install idm-test>=0.1.2 --index-url=https://packages.idmod.org/api/pypi/pypi-production/simple'
+				    sh 'python3 run_all_sft_tests.py'
+				    junit '**/test_results.xml'
+				}
+			}
+		} catch(e) {
+			build_ok = false
+			echo e.toString()
+		}
 
     // 	stage('Run Examples') {
     // 		echo "Running examples"
