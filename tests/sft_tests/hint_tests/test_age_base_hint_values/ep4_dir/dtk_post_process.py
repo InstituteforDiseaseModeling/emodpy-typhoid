@@ -79,9 +79,9 @@ class AgeBaseHINTValueTest(SFT):
                         for idx, rate in enumerate(transmission_matrix[0]):
                             left = age_bin_edges_in_years[idx]
                             right = age_bin_edges_in_years[idx + 1]
-                            # age_bin_interval = str(pd.Interval(left=left, right=right, closed='right'))
+                            age_bin_interval = str(pd.Interval(left=left, right=right, closed='right'))
                             # workaround for old Pandas library
-                            age_bin_interval = f'({left:.1f}, {right:.1f}]'
+                            #age_bin_interval = f'({left:.1f}, {right:.1f}]'
                             if rate == 0:
                                 if age_bin_interval in count_dict:
                                     self.success = False

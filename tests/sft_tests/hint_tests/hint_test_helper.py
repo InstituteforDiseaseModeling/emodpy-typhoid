@@ -31,6 +31,7 @@ def set_param_fn(config):
     config.parameters.Simulation_Type = "TYPHOID_SIM"
     config.parameters.Simulation_Duration = SIMULATION_DURATION_IN_YEARS * 365.0
     config.parameters.Base_Individual_Sample_Rate = 0.2
+    config.parameters.Run_Number = 0
 
     config.parameters.Base_Year = BASE_YEAR
     config.parameters.Inset_Chart_Reporting_Start_Year = 2005
@@ -39,7 +40,6 @@ def set_param_fn(config):
     config.parameters.Report_Typhoid_ByAgeAndGender_Start_Year = 2005
     config.parameters.Report_Typhoid_ByAgeAndGender_Stop_Year = 2020
 
-    config.parameters.Age_Initialization_Distribution_Type = "DISTRIBUTION_COMPLEX"
     config.parameters.Typhoid_3year_Susceptible_Fraction = 0
     config.parameters.Typhoid_6month_Susceptible_Fraction = 0
     config.parameters.Typhoid_6year_Susceptible_Fraction = 0

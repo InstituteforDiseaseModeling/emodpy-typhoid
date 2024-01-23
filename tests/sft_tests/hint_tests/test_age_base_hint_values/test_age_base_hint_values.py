@@ -53,9 +53,9 @@ class TestAgeBaseHintValues(TestAgeBaseHint):
         build_demog_age_bins_all_1s = partial(build_demog_target_all_age_bin, value=1)
         self.age_base_hint_test(build_demog_age_bins_all_1s)
 
-    def test_age_base_hint_values_all_2s(self):
-        build_demog_age_bins_all_2s = partial(build_demog_target_all_age_bin, value=2)
-        self.age_base_hint_test(build_demog_age_bins_all_2s)
+    def test_age_base_hint_values_all_gt1(self):
+        build_demog_age_bins_all_gt1 = partial(build_demog_target_all_age_bin, value=1.75)
+        self.age_base_hint_test(build_demog_age_bins_all_gt1)
 
     def test_age_base_hint_values_all_halves(self):
         build_demog_age_bins_all_halves = partial(build_demog_target_all_age_bin, value=0.5)
