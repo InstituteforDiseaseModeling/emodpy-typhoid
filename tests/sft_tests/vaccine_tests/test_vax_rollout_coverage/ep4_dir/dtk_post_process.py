@@ -108,14 +108,26 @@ class VaxRolloutCoverageTest(SFT):
             total_birth_count = births_id.shape[0]
             actual_vax_coverage = total_vax_count / total_birth_count
             expected_coverage = self.campaign_obj['Demographic_Coverage'][2]
-            if not math.isclose(actual_vax_coverage, expected_coverage, abs_tol=0.05): # we allow 5% difference
+            # set the base tolerance to 5% for coverage == 1,
+            # there is an uniform delay period with 14 days time window that we need to consider.
+            tolerance = 0.05
+            if expected_coverage != 1:
+                from idm_test.stats_test import cal_tolerance_binomial
+                # add the tolerance calculated based on binomial probabality on top of the base tolerance(discounted based on coverage)
+                tolerance = max(0, tolerance * (1 - (1 - expected_coverage) * 2))
+                tolerance += cal_tolerance_binomial(expected_coverage * total_vax_count, expected_coverage, prob=0.05)
+
+            if not math.isclose(actual_vax_coverage, expected_coverage, abs_tol=tolerance):
                 self.success = False
                 outfile.write(
-                    f"    BAD: at time step {self.campaign_obj['Start_Day'][2]}, vax coverage {actual_vax_coverage}, expected {expected_coverage}.\n")
+                    f"    BAD: at time step {self.campaign_obj['Start_Day'][2]}, vax coverage {actual_vax_coverage},"
+                    f" expected {expected_coverage} with tolerance = {tolerance}.\n")
                 outfile.write("Result is False.\n")
             else:
                 self.success = True
-                outfile.write("GOOD: coverage is correct!\n")
+                outfile.write(f"    GOOD: at time step {self.campaign_obj['Start_Day'][2]}, vax coverage "
+                              f"{actual_vax_coverage}, expected {expected_coverage} with tolerance = {tolerance}.\n"
+                              "    GOOD: coverage is correct!\n")
                 outfile.write("Result is True.\n")
         return self.success
 

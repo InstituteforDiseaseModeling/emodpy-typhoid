@@ -47,7 +47,7 @@ def set_param_fn(config):
     print("Setting params.")
     config.parameters.Simulation_Type = "TYPHOID_SIM"
     config.parameters.Simulation_Duration = SIMULATION_DURATION_IN_YEARS * 365.0
-    config.parameters.Base_Individual_Sample_Rate = 0.2
+    config.parameters.Base_Individual_Sample_Rate = 1
 
     config.parameters.Base_Year = BASE_YEAR
     config.parameters.Inset_Chart_Reporting_Start_Year = 2010
@@ -211,15 +211,15 @@ class MultiRouteHINTTest(unittest.TestCase):
         task.handle_experiment_completion(experiment)
         task.get_file_from_comps(experiment.uid, ["PropertyReportTyphoid.json", "ReportTyphoidByAgeAndGender.csv"])
         # Get downloaded local ReportEventRecorder.csv file path for all simulations
-        reporteventrecorder_downloaded = list(
+        reportbyageandgender_downloaded = list(
             glob(os.path.join(experiment.id, "**/ReportTyphoidByAgeAndGender.csv"), recursive=True))
         propertyreport_downloaded = list(
             glob(os.path.join(experiment.id, "**/PropertyReportTyphoid.json"), recursive=True))
-        reporteventrecorder_downloaded.sort()
+        reportbyageandgender_downloaded.sort()
         propertyreport_downloaded.sort()
-        for i in range(len(reporteventrecorder_downloaded)):
+        for i in range(len(reportbyageandgender_downloaded)):
             # read ReportEventRecorder.csv from each sim
-            df = pd.read_csv(reporteventrecorder_downloaded[i])
+            df = pd.read_csv(reportbyageandgender_downloaded[i])
 
             df.columns = df.columns.to_series().apply(lambda x: x.strip())
             with open(propertyreport_downloaded[i], "r") as content:
