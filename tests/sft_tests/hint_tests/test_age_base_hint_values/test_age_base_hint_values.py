@@ -39,7 +39,9 @@ class TestAgeBaseHintValues(TestAgeBaseHint):
     def test_age_base_hint_values(self):
         self.age_base_hint_test(build_demog_age_bins)
 
-    def test_age_base_hint_values_baseline(self):
+
+    # Please run this test separately with a different version of post process script which is  \test_age_base_hint_values\ep4_dir\dtk_post_process_baseline.py
+    def _test_age_base_hint_values_baseline(self):
         # This is a baseline simulation that is run without the AgeBadeHINT feature.
         self.age_base_hint_test(build_demog)
 
