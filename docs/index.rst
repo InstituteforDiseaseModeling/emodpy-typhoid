@@ -28,7 +28,6 @@ disease transmission model.
    :titlesonly:
    :caption: Related documentation
 
-   emodpy Jupyter notebooks <https://docs.idmod.org/projects/jupyter-notebooks-emodpy/en/latest/>
    EMOD typhoid <https://docs.idmod.org/projects/emod-typhoid/en/latest/>
    emod-api <https://docs.idmod.org/projects/emod-api/en/latest/>
    emodpy <https://docs.idmod.org/projects/emodpy/en/latest/>
