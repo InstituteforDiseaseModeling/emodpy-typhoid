@@ -15,24 +15,13 @@ Follow the steps below to install emodpy-typhoid.
 
 #.  Activate the virtual environment:
 
-    .. container:: os-code-block
+    * For Windows, enter the following::
 
-        .. container:: choices
+        v-emodpy-typhoid\Scripts\activate
 
-            * Windows
-            * Linux
+    * For Linux, enter the following::
 
-        .. container:: windows
-
-            Enter the following::
-
-                v-emodpy-typhoid\Scripts\activate
-
-        .. container:: linux
-
-            Enter the following::
-
-                source v-emodpy-typhoid/bin/activate
+        source v-emodpy-typhoid/bin/activate
 
 #.  Install emodpy-typhoid packages::
 
