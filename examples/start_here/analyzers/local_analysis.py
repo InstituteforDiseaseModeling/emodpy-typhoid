@@ -6,7 +6,7 @@ from population_analyzer import PopulationAnalyzer
 
 
 
-def post_processing_with_analysis(experiment_id):
+def local_analysis(experiment_id):
     platform = Platform("Calculon")
 
     filenames = ['output/population.json']
@@ -19,4 +19,4 @@ def post_processing_with_analysis(experiment_id):
 
 if __name__ == '__main__':
     experiment_id = '0352f566955ef011aa23b88303911bc1'
-    post_processing_with_analysis(experiment_id)
+    local_analysis(experiment_id)

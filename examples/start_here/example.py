@@ -11,7 +11,7 @@ from idmtools.core.platform_factory import Platform
 from idmtools.entities.experiment import Experiment
 analyzer_path = os.path.join(os.path.dirname(__file__),  "analyzers")
 sys.path.insert(0, analyzer_path)
-from analyzers.post_processing_with_analysis import post_processing_with_analysis
+from analyzers.local_analysis import local_analysis
 from analyzers.ssmt_analysis import ssmt_analysis
 
 # emodpy
@@ -99,7 +99,7 @@ def run_test():
 
     task.handle_experiment_completion( experiment )
 
-    post_processing_with_analysis(experiment.id)
+    local_analysis(experiment.id)
     ssmt_analysis(experiment.id)
 
 
