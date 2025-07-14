@@ -1,16 +1,18 @@
 #!/usr/bin/env python
+import os
+import sys
 
 import pandas as pd
-import pathlib # for a join
-from functools import partial
 
+from emodpy import emod_task
 # idmtools ...
-from idmtools.assets import Asset, AssetCollection  #
 from idmtools.builders import SimulationBuilder
 from idmtools.core.platform_factory import Platform
 from idmtools.entities.experiment import Experiment
-from idmtools_platform_comps.utils.python_requirements_ac.requirements_to_asset_collection import RequirementsToAssetCollection
-from idmtools_models.templated_script_task import get_script_wrapper_unix_task
+analyzer_path = os.path.join(os.path.dirname(__file__),  "analyzers")
+sys.path.insert(0, analyzer_path)
+from analyzers.post_processing_with_analysis import post_processing_with_analysis
+from analyzers.ssmt_analysis import ssmt_analysis
 
 # emodpy
 from emodpy.emod_task import EMODTask
@@ -40,8 +42,7 @@ def set_param_fn( config ):
     config.parameters.Node_Contagion_Decay_Rate = 0.33
 
     # when using 2018 binary
-    import emodpy_typhoid.config as config_utils
-    config_utils.cleanup_for_2018_mode( config )
+    #config_utils.cleanup_for_2018_mode( config )
 
     return config
 
@@ -71,13 +72,16 @@ def build_demog():
     demog.SetEquilibriumVitalDynamicsFromWorldBank( wb_births_df=wb_births_df, country='Chile', year=2005 )
     return demog
 
+def include_post_processing(task):
+    task = emod_task.add_ep4_from_path(task, manifest.ep4_path)
+    return task
 
 def run_test():
     # Create a platform
     # Show how to dynamically set priority and node_group
-    platform = Platform("SLURM", node_group="idm_48cores", priority="Highest") 
+    platform = Platform("SLURM", node_group="idm_48cores", priority="Highest")
 
-    task = EMODTask.from_default2(config_path="config.json", eradication_path=manifest.eradication_path, campaign_builder=build_camp, demog_builder=build_demog, schema_path=manifest.schema_file, param_custom_cb=set_param_fn, ep4_custom_cb=None)
+    task = EMODTask.from_default2(config_path="config.json", eradication_path=manifest.eradication_path, campaign_builder=build_camp, demog_builder=build_demog, schema_path=manifest.schema_file, param_custom_cb=set_param_fn, ep4_custom_cb=include_post_processing)
 
     print("Adding asset dir...")
     task.common_assets.add_directory(assets_directory=manifest.reporters, relative_path="reporter_plugins")
@@ -95,17 +99,11 @@ def run_test():
 
     task.handle_experiment_completion( experiment )
 
-    # download and plot some stuff.
-    if experiment.succeeded:
-        EMODTask.get_file_from_comps( experiment.uid, [ "InsetChart.json", "ReportTyphoidByAgeAndGender.csv" ], group=True )
-        task.cache_experiment_metadata_in_sql( experiment.uid )
-        #import emod_api.channelreports.plot_icj_means as plotter
-        #chan_data = plotter.collect( str( experiment.uid ), "Infected" )
-        #plotter.display( chan_data, False, "Infected", str( experiment.uid ) )
-    
+    post_processing_with_analysis(experiment.id)
+    ssmt_analysis(experiment.id)
+
 
 if __name__ == "__main__":
-    import emod_typhoid.bootstrap as dtk
     #dtk.setup( manifest.model_dl_dir )
     
     run_test()
